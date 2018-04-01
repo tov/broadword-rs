@@ -101,6 +101,16 @@ pub fn select1_raw(r: usize, x: u64) -> usize {
 /// Parallel ≤, treating a `u64` as a vector of 8 `u8`s.
 ///
 /// Branchless.
+///
+/// # Examples
+///
+/// ```
+/// use broadword::u_le8;
+///
+/// assert_eq!( u_le8(0x03_03_04_17_92_A0_A0_A1,
+///                   0x04_03_03_92_17_A0_A0_A0),
+///                   0x80_80_00_80_00_80_80_00 );
+/// ```
 #[inline]
 pub fn u_le8(x: u64, y: u64) -> u64 {
     ((((y | H8) - (x & !H8)) | (x ^ y)) ^ (x & !y)) & H8
