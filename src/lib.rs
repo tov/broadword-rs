@@ -119,6 +119,16 @@ pub fn u_le8(x: u64, y: u64) -> u64 {
 /// Parallel ≤, treating a `u64` as a vector of 8 `i8`s.
 ///
 /// Branchless.
+///
+/// # Examples
+///
+/// ```
+/// use broadword::i_le8;
+///
+/// assert_eq!( i_le8(0x03_03_04_00_FF_A0_A0_A1,
+///                   0x04_03_03_FF_00_A0_A0_A0),
+///                   0x80_80_00_00_80_80_80_00 );
+/// ```
 #[inline]
 pub fn i_le8(x: u64, y: u64) -> u64 {
     (((y | H8) - (x & !H8)) ^ x ^ y) & H8
@@ -127,6 +137,14 @@ pub fn i_le8(x: u64, y: u64) -> u64 {
 /// Parallel >0, treating a `u64` as a vector of 8 `u8`s.
 ///
 /// Branchless.
+///
+/// # Examples
+///
+/// ```
+/// use broadword::u_nz8;
+///
+/// assert_eq!( u_nz8(0x00_00_00_00_00_00_00_00),
+///                   0x00_00_00_00_00_00_00_00 );
 #[inline]
 pub fn u_nz8(x: u64) -> u64 {
     (((x | H8) - L8) | x) & H8
