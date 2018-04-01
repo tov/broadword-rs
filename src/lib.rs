@@ -1,10 +1,12 @@
 //! Broadword operations treat a `u64` as a parallel vector of eight `u8`s or `i8`s.
+//! This module also provides a population count function [`count_ones`](fn.count_ones.html) and a
+//! select function [`select1`](fn.select1.html).
 //!
-//! From [Sebastiano Vigna, “Broadword Implementation of
-//! Rank/Select Queries.”](http://sux.di.unimi.it/paper.pdf) Changes from
+//! The algorithms here are from [Sebastiano Vigna, “Broadword Implementation of
+//! Rank/Select Queries,”](http://sux.di.unimi.it/paper.pdf) but with several changes from
 //! that work:
 //!
-//!   - It uses a 17-digit (68-bit) constant “0x0F0F0F0F0F0F0F0F0.” I believe
+//!   - Vigna uses a 17-digit (68-bit) constant “0x0F0F0F0F0F0F0F0F0.” I believe
 //!     the correct constant is these 64 bits: 0x0F0F_0F0F_0F0F_0F0F.
 //!
 //!   - Arithmetic operations are assumed to wrap on overflow. If this
@@ -32,7 +34,8 @@ pub const H8: u64 = 0x8080_8080_8080_8080;
 
 /// Counts the number of ones in a `u64`.
 ///
-/// Uses the broadword algorithm from Vigna.
+/// Branchless. Uses the broadword algorithm from Vigna.
+#[inline]
 pub fn count_ones(mut x: u64) -> usize {
     x = x - ((x & 0xAAAA_AAAA_AAAA_AAAA) >> 1);
     x = (x & 0x3333_3333_3333_3333) + ((x >> 2) & 0x3333_3333_3333_3333);
@@ -43,6 +46,7 @@ pub fn count_ones(mut x: u64) -> usize {
 /// Finds the index of the `r`th one bit in `x`.
 ///
 /// Uses the broadword algorithm from Vigna.
+#[inline]
 pub fn select1(r: usize, x: u64) -> Option<usize> {
     let result = select1_raw(r, x);
     if result == 72 {None} else {Some(result)}
@@ -50,31 +54,41 @@ pub fn select1(r: usize, x: u64) -> Option<usize> {
 
 /// Finds the index of the `r`th one bit in `x`, returning 72 when not found.
 ///
-/// Uses the broadword algorithm from Vigna.
+/// Branchless. Uses the broadword algorithm from Vigna.
+#[inline]
 pub fn select1_raw(r: usize, x: u64) -> usize {
     let r = r as u64;
     let mut s = x - ((x & 0xAAAA_AAAA_AAAA_AAAA) >> 1);
     s = (s & 0x3333_3333_3333_3333) + ((s >> 2) & 0x3333_3333_3333_3333);
     s = ((s + (s >> 4)) & 0x0F0F_0F0F_0F0F_0F0F).wrapping_mul(L8);
-    let b = (le8(s, r.wrapping_mul(L8)) >> 7).wrapping_mul(L8)>> 53 & !7;
+    let b = (i_le8(s, r.wrapping_mul(L8)) >> 7).wrapping_mul(L8)>> 53 & !7;
     let l = r - ((s << 8).wrapping_shr(b as u32) & 0xFF);
     s = (u_nz8((x.wrapping_shr(b as u32) & 0xFF)
                        .wrapping_mul(L8) & 0x8040_2010_0804_0201) >> 7)
             .wrapping_mul(L8);
-    (b + ((le8(s, l.wrapping_mul(L8)) >> 7).wrapping_mul(L8) >> 56)) as usize
+    (b + ((i_le8(s, l.wrapping_mul(L8)) >> 7).wrapping_mul(L8) >> 56)) as usize
 }
 
 /// Parallel ≤, treating a `u64` as a vector of 8 `u8`s.
+///
+/// Branchless.
+#[inline]
 pub fn u_le8(x: u64, y: u64) -> u64 {
     ((((y | H8) - (x & !H8)) | (x ^ y)) ^ (x & !y)) & H8
 }
 
 /// Parallel ≤, treating a `u64` as a vector of 8 `i8`s.
-pub fn le8(x: u64, y: u64) -> u64 {
+///
+/// Branchless.
+#[inline]
+pub fn i_le8(x: u64, y: u64) -> u64 {
     (((y | H8) - (x & !H8)) ^ x ^ y) & H8
 }
 
 /// Parallel >0, treating a `u64` as a vector of 8 `u8`s.
+///
+/// Branchless.
+#[inline]
 pub fn u_nz8(x: u64) -> u64 {
     (((x | H8) - L8) | x) & H8
 }
@@ -259,24 +273,24 @@ mod test {
     #[test]
     fn le8_works() {
         assert_eq!(b( 1,  1,  1,  1,  0,  0,  0,  0),
-               le8(i( 0,  0,  0,  0,  0,  0,  0,  0),
-                   i( 3,  2,  1,  0, -1, -2, -3, -4)));
+                   i_le8(i(0, 0, 0, 0, 0, 0, 0, 0),
+                         i( 3,  2,  1,  0, -1, -2, -3, -4)));
 
         assert_eq!(b( 0,  0,  0,  1,  1,  1,  1,  1),
-               le8(i( 3,  2,  1,  0, -1, -2, -3, -4),
-                   i( 0,  0,  0,  0,  0,  0,  0,  0)));
+                   i_le8(i(3, 2, 1, 0, -1, -2, -3, -4),
+                         i( 0,  0,  0,  0,  0,  0,  0,  0)));
 
         assert_eq!(b( 0,  0,  1,  1,  1,  1,  1,  1),
-               le8(i(19, 18, 17, 16, 15,  0, -1, -2),
-                   i(17, 17, 17, 17, 17, 17, 17, 17)));
+                   i_le8(i(19, 18, 17, 16, 15, 0, -1, -2),
+                         i(17, 17, 17, 17, 17, 17, 17, 17)));
 
         assert_eq!(b( 1,  1,  0,  0,  0,  0,  0,  0),
-               le8(i(-9, -8, -7,  0,  1,  2,  3,  4),
-                   i(-8, -8, -8, -8, -8, -8, -8, -8)));
+                   i_le8(i(-9, -8, -7, 0, 1, 2, 3, 4),
+                         i(-8, -8, -8, -8, -8, -8, -8, -8)));
 
         assert_eq!(b( 0,  1,  0,  1,  1,  0,  1,  0),
-               le8(i( 8,  3, 46,  0,  0,  0, -6, -1),
-                   i( 7,  3, 24,  1,  0, -9,  5, -2)));
+                   i_le8(i(8, 3, 46, 0, 0, 0, -6, -1),
+                         i( 7,  3, 24,  1,  0, -9,  5, -2)));
     }
 
     #[test]
