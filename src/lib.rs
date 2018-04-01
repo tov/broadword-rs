@@ -35,6 +35,18 @@ pub const H8: u64 = 0x8080_8080_8080_8080;
 /// Counts the number of ones in a `u64`.
 ///
 /// Branchless. Uses the broadword algorithm from Vigna.
+///
+/// # Examples
+///
+/// ```
+/// use broadword::count_ones;
+///
+/// assert_eq!( count_ones(0x0000_0000_0000_0000), 0 );
+/// assert_eq!( count_ones(0x0000_0001_0000_0000), 1 );
+/// assert_eq!( count_ones(0x0000_0001_0400_0000), 2 );
+/// assert_eq!( count_ones(0x0000_0001_0600_0000), 3 );
+/// assert_eq!( count_ones(0x3333_0001_0600_0000), 11 );
+/// ```
 #[inline]
 pub fn count_ones(mut x: u64) -> usize {
     x = x - ((x & 0xAAAA_AAAA_AAAA_AAAA) >> 1);
@@ -46,6 +58,22 @@ pub fn count_ones(mut x: u64) -> usize {
 /// Finds the index of the `r`th one bit in `x`.
 ///
 /// Uses the broadword algorithm from Vigna.
+/// Note that bits are numbered from least-significant to most.
+///
+/// # Examples
+///
+/// ```
+/// use broadword::select1;
+///
+/// assert_eq!( select1(0, 0x0000_0000_0000_0000), None );
+/// assert_eq!( select1(0, 0x0000_0000_0000_0001), Some(0) );
+/// assert_eq!( select1(0, 0x0000_0000_0000_0002), Some(1) );
+/// assert_eq!( select1(0, 0x0000_0000_0000_0004), Some(2) );
+/// assert_eq!( select1(2, 0x0000_0000_0000_0004), None );
+/// assert_eq!( select1(2, 0x0000_1010_1010_0114), Some(8) );
+/// assert_eq!( select1(3, 0x0000_1010_1010_0114), Some(20) );
+/// assert_eq!( select1(4, 0x0000_1010_1010_0114), Some(28) );
+/// ```
 #[inline]
 pub fn select1(r: usize, x: u64) -> Option<usize> {
     let result = select1_raw(r, x);
@@ -55,6 +83,7 @@ pub fn select1(r: usize, x: u64) -> Option<usize> {
 /// Finds the index of the `r`th one bit in `x`, returning 72 when not found.
 ///
 /// Branchless. Uses the broadword algorithm from Vigna.
+/// Note that bits are numbered from least-significant to most.
 #[inline]
 pub fn select1_raw(r: usize, x: u64) -> usize {
     let r = r as u64;
