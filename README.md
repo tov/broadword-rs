@@ -5,8 +5,8 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE-MIT)
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache_2.0-blue.svg)](LICENSE-APACHE)
 
-Broadword algorithms treat a `u64` as a parallel vector of eight `u8`s
-or `i8`s.
+This crate includes broadword algorithms that treat a `u64` as a parallel vector
+of eight `u8`s or `i8`s, as well as population count and select algorithms.
 
 ## Usage
 
@@ -14,7 +14,7 @@ It’s [on crates.io](https://crates.io/crates/broadword), so you can add
 
 ```toml
 [dependencies]
-broadword = "*"
+broadword = "1.0"
 ```
 
 to your `Cargo.toml` and
