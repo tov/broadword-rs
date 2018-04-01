@@ -1,0 +1,14 @@
+[package]
+name = "broadword"
+version = "0.1.0-pre"
+authors = ["Jesse A. Tov <jesse.tov@gmail.com>"]
+description = "Broadword algorithms"
+repository = "https://github.com/tov/broadword-rs"
+homepage = "https://github.com/tov/broadword-rs"
+documentation = "https://tov.github.io/broadword-rs/broadword/"
+readme = "README.md"
+license = "MIT/Apache-2.0"
+keywords = ["broadword", "u64", "select", "popcount"]
+
+[dev-dependencies]
+quickcheck = "0.6.2"
