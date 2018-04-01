@@ -229,83 +229,32 @@ mod test {
              u_nz8(0xFF_FF_FF_FF_00_FF_FF_FF));
     }
 
-//    // I don’t understand le8, apparently.
+    fn u_le8_prop_base(n: u64, m: u64) -> bool {
+        let r = u_le8(n, m);
+        for i in 0..8 {
+            let ni = get_bits(n, 8 * i, 8);
+            let mi = get_bits(m, 8 * i, 8);
+            let ri = get_bits(r, 8 * i, 8);
+            if (ni <= mi) != (ri == 0x80) {
+                return false;
+            }
+        }
 
-//    #[test]
-//    fn le8_128_0() {
-//        let n = 128;
-//        let m = 0;
-//        let r = le8(n, m);
-//        let n0 = n.get_bits(0, 8) as u8 as i8;
-//        let m0 = m.get_bits(0, 8) as u8 as i8;
-//        let r0 = r.get_bits(0, 8);
-//        println!("n0: {}, m0: {}, r0: {}", n0, m0, r0);
-//        assert_eq!(n0 <= m0, r0 == 0x80);
-//    }
+        true
+    }
 
-//    fn le8_prop_hashed((n0, n1, n2, n3): (u64, u64, u64, u64),
-//                       (m0, m1, m2, m3): (u64, u64, u64, u64)) -> bool {
-//        let n = hash(&(n0, n1, n2, n3));
-//        let m = hash(&(m0, m1, m2, m3));
-//        le8_prop(n, m)
-//    }
-//
-//    fn le8_prop(n: u64, m: u64) -> bool {
-//        let r = le8(n, m);
-//        for i in 0..8 {
-//            let ni = n.get_bits(8 * i, 8) as u8 as i8;
-//            let mi = m.get_bits(8 * i, 8) as u8 as i8;
-//            let ri = r.get_bits(8 * i, 8);
-//            if (ni <= mi) != (ri == 0x80) {
-//                return false;
-//            }
-//        }
-//
-//        true
-//    }
-//
-//    #[test]
-//    fn le8_qc() {
-//        quickcheck(le8_prop as fn(u64, u64) -> bool);
-//    }
-//
-//    #[test]
-//    fn le8_qc_hashed() {
-//        quickcheck(le8_prop_hashed as fn((u64, u64, u64, u64),
-//                                         (u64, u64, u64, u64)) -> bool);
-//    }
+    quickcheck! {
+        fn u_le8_prop(n: u64, m: u64) -> bool {
+            u_le8_prop_base(n, m)
+        }
 
-//    fn u_le8_prop_hashed((n0, n1, n2, n3): (u64, u64, u64, u64),
-//                         (m0, m1, m2, m3): (u64, u64, u64, u64)) -> bool {
-//        let n = hash(&(n0, n1, n2, n3));
-//        let m = hash(&(m0, m1, m2, m3));
-//        u_le8_prop(n, m)
-//    }
-//
-//    fn u_le8_prop(n: u64, m: u64) -> bool {
-//        let r = u_le8(n, m);
-//        for i in 0..8 {
-//            let ni = n.get_bits(8 * i, 8);
-//            let mi = m.get_bits(8 * i, 8);
-//            let ri = r.get_bits(8 * i, 8);
-//            if (ni <= mi) != (ri == 0x80) {
-//                return false;
-//            }
-//        }
-//
-//        true
-//    }
-//
-//    #[test]
-//    fn u_le8_qc() {
-//        quickcheck(u_le8_prop as fn(u64, u64) -> bool);
-//    }
-//
-//    #[test]
-//    fn u_le8_qc_hashed() {
-//        quickcheck(u_le8_prop_hashed as fn((u64, u64, u64, u64),
-//                                           (u64, u64, u64, u64)) -> bool);
-//    }
+        fn u_le8_prop_hashed(n: (u64, u64, u64, u64),
+                             m: (u64, u64, u64, u64)) -> bool {
+            let n = hash(&n);
+            let m = hash(&m);
+            u_le8_prop_base(n, m)
+        }
+    }
 
     #[test]
     fn le8_works() {
