@@ -193,38 +193,26 @@ mod test {
         }
     }
 
-//    fn select1_prop_hash(r: u8, x: u64) -> TestResult {
-//        select1_prop(r, hash(&x))
-//    }
-//
-//    #[test]
-//    fn select1_qc() {
-//        quickcheck(select1_prop as fn(u8, u64) -> TestResult);
-//    }
-//
-//    #[test]
-//    fn select1_qc_hash() {
-//        quickcheck(select1_prop_hash as fn(u8, u64) -> TestResult);
-//    }
+    fn get_bits(x: u64, i: u8, n: u8) -> u64 {
+        let mask = if n == 64 {!0} else {(1 << n) - 1};
+        (x >> i) & mask
+    }
 
-//    fn u_nz8_prop((n0, n1, n2, n3): (u64, u64, u64, u64)) -> bool {
-//        let n = hash(&(n0, n1, n2, n3));
-//        let r = u_nz8(n);
-//        for i in 0..8 {
-//            let ni = n.get_bits(8 * i, 8);
-//            let ri = r.get_bits(8 * i, 8);
-//            if (ni != 0) != (ri == 0x80) {
-//                return false;
-//            }
-//        }
-//
-//        true
-//    }
+    quickcheck! {
+        fn u_nz8_prop(argument: (u64, u64, u64, u64)) -> bool {
+            let n = hash(&argument);
+            let r = u_nz8(n);
+            for i in 0..8 {
+                let ni = get_bits(n, 8 * i, 8);
+                let ri = get_bits(r, 8 * i, 8);
+                if (ni != 0) != (ri == 0x80) {
+                    return false;
+                }
+            }
 
-//    #[test]
-//    fn u_nz8_qc() {
-//        quickcheck(u_nz8_prop as fn((u64, u64, u64, u64)) -> bool);
-//    }
+            true
+        }
+    }
 
     #[test]
     fn u_nz8_works() {
