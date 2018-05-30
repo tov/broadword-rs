@@ -1,0 +1,5 @@
+pre-release-replacements = [
+  { file="README.md", search="broadword = \"[0-9.]*\"", replace="broadword = \"{{version}}\"" },
+  { file="src/lib.rs", search="broadword = \"[0-9.]*\"", replace="broadword = \"{{version}}\"" },
+  { file="src/lib.rs", search="https://docs[.]rs/broadword/[0-9.]*", replace="https://docs.rs/broadword/{{version}}" }
+]
