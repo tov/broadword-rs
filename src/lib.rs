@@ -1,4 +1,4 @@
-#![doc(html_root_url = "https://docs.rs/broadword/0.2.1")]
+#![doc(html_root_url = "https://docs.rs/broadword/0.2.2")]
 //! Broadword operations treat a `u64` as a parallel vector of eight `u8`s or `i8`s.
 //! This module also provides a population count function [`count_ones`](fn.count_ones.html) and a
 //! select function [`select1`](fn.select1.html).

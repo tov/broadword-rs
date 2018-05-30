@@ -1,6 +1,6 @@
 [package]
 name = "broadword"
-version = "0.2.2-pre"
+version = "0.2.2"
 authors = ["Jesse A. Tov <jesse.tov@gmail.com>"]
 description = "Broadword algorithms"
 repository = "https://github.com/tov/broadword-rs"

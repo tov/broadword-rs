@@ -14,7 +14,7 @@ It’s [on crates.io](https://crates.io/crates/broadword), so you can add
 
 ```toml
 [dependencies]
-broadword = "0.2"
+broadword = "0.2.2"
 ```
 
 to your `Cargo.toml` and
