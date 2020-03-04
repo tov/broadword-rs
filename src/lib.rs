@@ -86,6 +86,7 @@ pub fn select1(r: usize, x: u64) -> Option<usize> {
 /// Branchless. Uses the broadword algorithm from Vigna.
 /// Note that bits are numbered from least-significant to most.
 #[inline]
+#[allow(clippy::many_single_char_names)]
 pub fn select1_raw(r: usize, x: u64) -> usize {
     let r = r as u64;
     let mut s = x - ((x & 0xAAAA_AAAA_AAAA_AAAA) >> 1);
@@ -152,6 +153,7 @@ pub fn u_nz8(x: u64) -> u64 {
 }
 
 #[cfg(test)]
+#[allow(clippy::many_single_char_names)]
 mod test {
     use std::hash::{Hash, Hasher};
     use std::collections::hash_map::DefaultHasher;
@@ -245,7 +247,7 @@ mod test {
             }
         }
 
-        return None;
+        None
     }
 
     fn select1_prop_base(r: u8, x: u64) -> TestResult {
@@ -402,4 +404,3 @@ mod test {
         s.finish()
     }
 }
-
